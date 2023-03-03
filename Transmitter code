@@ -1,0 +1,39 @@
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+
+RF24 radio(9, 10); // CE, CSN pins
+const byte address[6] = "00001"; // Address of the receiver
+
+void setup() {
+  Serial.begin(9600);
+  radio.begin();
+  radio.openWritingPipe(address);
+  radio.setPALevel(RF24_PA_MIN); // Set power level
+  radio.setDataRate(RF24_1MBPS); // Set data rate
+}
+
+void loop() {
+  // Read input from 6 channels
+  int ch1 = analogRead(A0);
+  int ch2 = analogRead(A1);
+  int ch3 = analogRead(A2);
+  int ch4 = analogRead(A3);
+  int ch5 = analogRead(A4);
+  int ch6 = analogRead(A5);
+
+  // Package data into payload
+  byte payload[12];
+  memcpy(&payload[0], &ch1, sizeof(ch1));
+  memcpy(&payload[2], &ch2, sizeof(ch2));
+  memcpy(&payload[4], &ch3, sizeof(ch3));
+  memcpy(&payload[6], &ch4, sizeof(ch4));
+  memcpy(&payload[8], &ch5, sizeof(ch5));
+  memcpy(&payload[10], &ch6, sizeof(ch6));
+
+  // Send payload to receiver
+  radio.write(&payload, sizeof(payload));
+  
+  // Output data to TFT display
+  // Code for TFT display output goes here
+}
